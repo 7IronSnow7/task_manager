@@ -6,6 +6,7 @@ from models.task import Task, TaskPriority, TaskStatus
 from models.user import User, create_default_users
 from controllers.task_controller import task_bp
 from controllers.auth_controller import auth_bp
+from controllers.admin_controller import admin_bp
 from dotenv import load_dotenv
 import os
 
@@ -79,6 +80,7 @@ def create_app():
     # Register blueprints    
     app.register_blueprint(task_bp, url_prefix='/tasks')
     app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(admin_bp, url_prefix='/admin')
     
     # @app.route('/force-logout')
     # def force_logout():

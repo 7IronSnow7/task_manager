@@ -11,6 +11,9 @@ class User(UserMixin, db.Model):
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
     
+    # Admin
+    is_admin = db.Column(db.Boolean, default=False, nullable=False)
+    
     # User details
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -57,12 +60,14 @@ def create_default_users():
         {
             "username": "admin",
             "email": "admin@taskmanager.com",
-            "password": os.getenv("DEFAULT_ADMIN_PASSWORD", "taskmanager123")
+            "password": os.getenv("DEFAULT_ADMIN_PASSWORD", "admin123"),
+            "is_admin": True
         },
         {
             "username": "demo",
             "email": "demo@taskmanager.com",
-            "password": os.getenv("DEFAULT_DEMO_PASSWORD", "demo123")
+            "password": os.getenv("DEFAULT_DEMO_PASSWORD", "demo123"),
+            "is_admin": False
         }
     ]
     
@@ -71,9 +76,10 @@ def create_default_users():
             new_user = User()
             new_user.username = user_data["username"]
             new_user.email = user_data["email"]
+            new_user.is_admin = user_data["is_admin"]
             new_user.set_password(user_data["password"]) # This will hash the password
             db.session.add(new_user)
-            print(f"Creating user: {user_data['username']} with password: {user_data['password']}")
+            print(f"Creating user: {user_data['username']} (Admin: {user_data['is_admin']}")
     
     try:
         db.session.commit()
