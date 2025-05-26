@@ -93,7 +93,6 @@ def create_sample_tasks():
         db.session.commit()
         
         print(f"Successfully created {len(sample_tasks)} sample tasks!")
-        print("You can now test your app at http://localhost:5000/tasks/")
 
 if __name__ == '__main__':
     create_sample_tasks()

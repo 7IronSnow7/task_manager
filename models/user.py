@@ -2,6 +2,8 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timezone
 from . import db
+from dotenv import load_dotenv
+import os
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -48,3 +50,34 @@ class User(UserMixin, db.Model):
     def find_by_email(cls, email):
         """Find user by email"""
         return cls.query.filter_by(email=email).first()
+    
+def create_default_users():
+    """Default users for demo/development if they don't exist"""
+    default_users = [
+        {
+            "username": "admin",
+            "email": "admin@taskmanager.com",
+            "password": os.getenv("DEFAULT_ADMIN_PASSWORD", "taskmanager123")
+        },
+        {
+            "username": "demo",
+            "email": "demo@taskmanager.com",
+            "password": os.getenv("DEFAULT_DEMO_PASSWORD", "demo123")
+        }
+    ]
+    
+    for user_data in default_users:
+        if not User.find_by_username(user_data["username"]):
+            new_user = User()
+            new_user.username = user_data["username"]
+            new_user.email = user_data["email"]
+            new_user.set_password(user_data["password"]) # This will hash the password
+            db.session.add(new_user)
+            print(f"Creating user: {user_data['username']} with password: {user_data['password']}")
+    
+    try:
+        db.session.commit()
+        print("Default users created")
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error {str(e)}")
