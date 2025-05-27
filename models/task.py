@@ -1,6 +1,10 @@
 from datetime import datetime, timezone
 from enum import Enum
-from . import db
+from models import db
+import pytz
+
+# South African timezone
+SAST = pytz.timezone('Africa/Johannesburg')
 
 class TaskStatus(Enum):
     PENDING = "pending"
@@ -28,8 +32,8 @@ class Task(db.Model):
     
     # Dates
     due_date = db.Column(db.DateTime, nullable=True)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
-    updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(SAST), nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.now(SAST), onupdate=datetime.now(SAST))
     
     # Foreign key to user
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -51,11 +55,11 @@ class Task(db.Model):
 
     def mark_completed(self):
         self.status = TaskStatus.COMPLETED
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(SAST)
         
     def mark_in_progress(self):
         self.status = TaskStatus.IN_PROGRESS
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(SAST)
         
     @classmethod
     def get_by_status(cls, status):

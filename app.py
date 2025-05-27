@@ -1,25 +1,25 @@
+from controllers.admin_controller import admin_bp
+from controllers.auth_controller import auth_bp
+from controllers.task_controller import task_bp
+from config import Config
+# from dotenv import load_dotenv
 from flask import Flask, redirect, url_for
 from flask_login import LoginManager, current_user
-from config import Config
 from models import db
 from models.task import Task, TaskPriority, TaskStatus
 from models.user import User, create_default_users
-from controllers.task_controller import task_bp
-from controllers.auth_controller import auth_bp
-from controllers.admin_controller import admin_bp
-from dotenv import load_dotenv
-import os
+# import os
 
-# Debug .env loading
-env_path = os.path.join(os.path.dirname(__file__), '.env')
-print(f"Looking for .env at: {env_path}")
-print(f"File exists: {os.path.exists(env_path)}")
+# # Debug .env loading
+# env_path = os.path.join(os.path.dirname(__file__), '.env')
+# print(f"Looking for .env at: {env_path}")
+# print(f"File exists: {os.path.exists(env_path)}")
 
-load_dotenv(env_path)  # Force load from specific path
+# load_dotenv(env_path)  # Force load from specific path
 
-# Debug environment variables
-print("DEFAULT_ADMIN_PASSWORD:", os.getenv("DEFAULT_ADMIN_PASSWORD"))
-print("DEFAULT_DEMO_PASSWORD:", os.getenv("DEFAULT_DEMO_PASSWORD"))
+# # Debug environment variables
+# print("DEFAULT_ADMIN_PASSWORD:", os.getenv("DEFAULT_ADMIN_PASSWORD"))
+# print("DEFAULT_DEMO_PASSWORD:", os.getenv("DEFAULT_DEMO_PASSWORD"))
 
 def create_app():
     app = Flask(__name__)

@@ -1,10 +1,13 @@
-from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timezone
-from . import db
 from dotenv import load_dotenv
+from flask_login import UserMixin
+from models import db
 import os
+import pytz
+from werkzeug.security import generate_password_hash, check_password_hash
 
+# South African timezone
+SAST = pytz.timezone('Africa/Johannesburg')
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     
@@ -20,7 +23,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(120), nullable=False)
     
     # Timestamps
-    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now(SAST), nullable=False)
     
     # Relationships with tasks
     tasks = db.relationship('Task', backref='user', lazy=True, cascade='all, delete-orphan')
