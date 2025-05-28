@@ -202,7 +202,7 @@
 <!-- FIXED: Proper AJAX Task Toggle Script -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🔧 Task toggle JavaScript loaded');
+    console.log('Task toggle JavaScript loaded');
     
     // Handle task completion toggle
     document.querySelectorAll('.task-toggle').forEach(function(button) {
@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const isCompleted = this.dataset.completed === 'true';
             const taskRow = document.getElementById('task-row-' + taskId);
             
-            console.log(`🔧 Toggle clicked - Task ID: ${taskId}, Currently completed: ${isCompleted}`);
+            console.log(`Toggle clicked - Task ID: ${taskId}, Currently completed: ${isCompleted}`);
             
             // Show loading state
             const originalContent = this.innerHTML;
@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .then(response => {
-                console.log('🔧 Response received:', response.status);
+                console.log('Response received:', response.status);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
