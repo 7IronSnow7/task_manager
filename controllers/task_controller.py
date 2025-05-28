@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, date
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from models import db
@@ -15,10 +15,15 @@ task_bp = Blueprint('tasks', __name__)
 def index():
     """Display active tasks (exclude completed tasks)"""
     # Only show pending or in progress tasks here
-    tasks = Task.query.filter_by(user_id=current_user.id).filter(
+    active_tasks = Task.query.filter_by(user_id=current_user.id).filter(
         Task.status != TaskStatus.COMPLETED
         ).order_by(Task.created_at.desc()).all()
-    return render_template('tasks/index.html', tasks=tasks)
+    
+    # Get all tasks for stats
+    all_tasks = Task.query.filter_by(user_id=current_user.id).all()
+    return render_template('tasks/index.html', 
+                           tasks=active_tasks,
+                           all_tasks=all_tasks)
 
 @task_bp.route('/new')
 @login_required
@@ -46,6 +51,12 @@ def create():
     if due_date_str:
         try:
             due_date = datetime.strptime(due_date_str, '%Y-%m-%d').date()
+            
+            # Check if due date is in the past
+            today = date.today()
+            if due_date < today:
+                flash('Due date cannot be in the past. Please select today or a future date.', 'error')
+                return redirect(url_for('tasks.new'))
         except ValueError:
             flash('Invalid date format', 'error')
             return redirect(url_for('tasks.new'))
@@ -80,7 +91,7 @@ def show(id):
 @login_required
 def edit(id):
     """Display edit form for a task"""
-    task = Task.query.filter_by(id=id, user_id=current_user.id).first_or_404()
+    task = Task.query.filter_by(id=id, user_id=current_user.id).filter(Task.status != TaskStatus.COMPLETED).first_or_404()
     return render_template('tasks/edit.html', task=task)
 
 @task_bp.route('/<int:id>/update', methods=['POST'])
@@ -121,7 +132,7 @@ def update(id):
     try:
         db.session.commit()
         flash('Task updated successfully!', 'success')
-        return redirect(url_for('tasks.show', id=task.id))
+        return redirect(url_for('tasks.index'))
     except Exception as e:
         db.session.rollback()
         flash(f'Error updating task: {str(e)}', 'error')
@@ -174,15 +185,15 @@ def toggle_complete(id):
     """Toggle task completion status"""
     task = Task.query.filter_by(id=id, user_id=current_user.id).first_or_404()
     
+    if task.status == TaskStatus.COMPLETED:
+        flash('Task is already completed and cannot be reopened', 'error')
+        return redirect(url_for('tasks.index'))
+    
     try:
-        # Toggle between completed and pending
-        if task.status == TaskStatus.COMPLETED:
-            task.mark_pending()
-            message = 'Task reopened successfully!'
-        else:
-            task.mark_completed()
-            message = 'Task completed successfully!'
-            
+    # Toggle between completed and pending
+        task.mark_completed()
+        message = 'Task completed successfully!'
+    
         db.session.commit()
         flash(message, 'success')
         

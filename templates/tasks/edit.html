@@ -1,97 +1,99 @@
 {% extends "base.html" %}
 
-{% block title %}Edit Task{% endblock %}
+{% block title %}Edit Task - {{ task.title }}{% endblock %}
 
 {% block content %}
 <div class="max-w-2xl mx-auto">
-    <div class="bg-white shadow-lg rounded-lg p-6">
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-gray-900">Edit Task</h1>
-            <a href="{{ url_for('tasks.show', id=task.id) }}" 
-               class="text-gray-600 hover:text-gray-800 transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center">
+            <a href="{{ url_for('tasks.show', id=task.id) }}" class="text-blue-600 hover:text-blue-800 mr-4">
+                <i class="fas fa-arrow-left"></i>
             </a>
+            <h1 class="text-3xl font-bold text-gray-900">Edit Task</h1>
         </div>
+    </div>
 
-        <!-- FIXED: Using 'tasks.update' endpoint -->
-        <form action="{{ url_for('tasks.update', id=task.id) }}" method="POST" class="space-y-6">
-            <!-- Title Field -->
-            <div>
-                <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
-                    Task Title *
-                </label>
-                <input type="text" 
-                       id="title" 
-                       name="title" 
-                       value="{{ task.title }}"
-                       required
-                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-            </div>
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="rounded-md p-4 mb-4
+                    {% if category == 'error' %}bg-red-50 border border-red-200
+                    {% elif category == 'success' %}bg-green-50 border border-green-200
+                    {% else %}bg-blue-50 border border-blue-200{% endif %}">
+                    <div class="text-sm
+                        {% if category == 'error' %}text-red-800
+                        {% elif category == 'success' %}text-green-800
+                        {% else %}text-blue-800{% endif %}">
+                        {{ message }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-            <!-- Description Field -->
+    <!-- Edit Form -->
+    <div class="bg-white rounded-lg shadow-lg p-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-6">{{ task.title }}</h2>
+        
+        <form method="POST" action="{{ url_for('tasks.update', id=task.id) }}" class="space-y-6">
+            <!-- Hidden fields to preserve existing data -->
+            <input type="hidden" name="title" value="{{ task.title }}">
+            <input type="hidden" name="status" value="{{ task.status.value }}">
+            
+            <!-- Description -->
             <div>
                 <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-align-left text-gray-500 mr-2"></i>
                     Description
                 </label>
-                <textarea id="description" 
-                          name="description" 
-                          rows="4"
-                          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-vertical">{{ task.description or '' }}</textarea>
+                <textarea id="description" name="description" rows="4" 
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-vertical"
+                          placeholder="Add a description for your task...">{{ task.description or '' }}</textarea>
             </div>
 
-            <!-- Priority, Status, and Due Date -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Priority Field -->
-                <div>
-                    <label for="priority" class="block text-sm font-medium text-gray-700 mb-2">
-                        Priority
-                    </label>
-                    <select id="priority" 
-                            name="priority"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                        <option value="low" {% if task.priority.value == 'low' %}selected{% endif %}>Low</option>
-                        <option value="medium" {% if task.priority.value == 'medium' %}selected{% endif %}>Medium</option>
-                        <option value="high" {% if task.priority.value == 'high' %}selected{% endif %}>High</option>
-                    </select>
-                </div>
-
-                <!-- Status Field -->
-                <div>
-                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
-                        Status
-                    </label>
-                    <select id="status" 
-                            name="status"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                        <option value="pending" {% if task.status.value == 'pending' %}selected{% endif %}>Pending</option>
-                        <option value="in_progress" {% if task.status.value == 'in_progress' %}selected{% endif %}>In Progress</option>
-                        <option value="completed" {% if task.status.value == 'completed' %}selected{% endif %}>Completed</option>
-                    </select>
-                </div>
-
-                <!-- Due Date Field -->
-                <div>
-                    <label for="due_date" class="block text-sm font-medium text-gray-700 mb-2">
-                        Due Date
-                    </label>
-                    <input type="date" 
-                           id="due_date" 
-                           name="due_date"
-                           value="{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else '' }}"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                </div>
+            <!-- Priority -->
+            <div>
+                <label for="priority" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-flag text-gray-500 mr-2"></i>
+                    Priority
+                </label>
+                <select id="priority" name="priority" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="low" {% if task.priority.value == 'low' %}selected{% endif %}>
+                        Low Priority
+                    </option>
+                    <option value="medium" {% if task.priority.value == 'medium' %}selected{% endif %}>
+                        Medium Priority
+                    </option>
+                    <option value="high" {% if task.priority.value == 'high' %}selected{% endif %}>
+                        High Priority
+                    </option>
+                </select>
             </div>
 
-            <!-- Form Actions -->
-            <div class="flex items-center justify-end space-x-4 pt-6 border-t">
+            <!-- Due Date -->
+            <div>
+                <label for="due_date" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-calendar-alt text-gray-500 mr-2"></i>
+                    Due Date
+                </label>
+                <input type="date" id="due_date" name="due_date" 
+                       value="{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else '' }}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <p class="mt-1 text-sm text-gray-500">Leave empty if no due date needed</p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
                 <a href="{{ url_for('tasks.show', id=task.id) }}" 
-                   class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
+                   class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors">
                     Cancel
                 </a>
                 <button type="submit" 
-                        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium transition-colors">
+                    <i class="fas fa-save mr-2"></i>
                     Update Task
                 </button>
             </div>
@@ -99,4 +101,3 @@
     </div>
 </div>
 {% endblock %}
-

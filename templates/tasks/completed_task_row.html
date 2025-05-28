@@ -1,6 +1,3 @@
-<!-- templates/tasks/_completed_task_row.html -->
-<!-- Reusable partial for displaying completed task rows -->
-
 <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
     <div class="flex items-center justify-between">
         <div class="flex items-center space-x-3 flex-1">
@@ -72,25 +69,17 @@
 
         <!-- Task Actions -->
         <div class="flex items-center space-x-2">
-            <!-- Reopen Task Button -->
-            <button type="button" 
-                    class="reopen-task text-gray-400 hover:text-blue-600 transition-colors"
-                    data-task-id="{{ task.id }}"
-                    title="Reopen Task">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                </svg>
-            </button>
-            
+            <!-- View Task Button -->
             <a href="{{ url_for('tasks.show', id=task.id) }}" 
                class="text-gray-400 hover:text-green-600 transition-colors"
-               title="View Task">
+               title="View Task Details">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                 </svg>
             </a>
             
+            <!-- Delete Task Button -->
             <form action="{{ url_for('tasks.delete', id=task.id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to permanently delete this completed task?');">
                 <button type="submit" class="text-gray-400 hover:text-red-600 transition-colors" title="Delete Task">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,62 +90,3 @@
         </div>
     </div>
 </div>
-
-<!-- JavaScript for reopen functionality (add this once in the main template) -->
-<script>
-// Handle task reopening
-document.querySelectorAll('.reopen-task').forEach(function(button) {
-    button.addEventListener('click', function() {
-        const taskId = this.dataset.taskId;
-        
-        if (confirm('Are you sure you want to reopen this task?')) {
-            // Show loading state
-            const originalHTML = this.innerHTML;
-            this.innerHTML = '<div class="w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>';
-            this.disabled = true;
-            
-            // Send request to toggle (will reopen the completed task)
-            fetch(`/tasks/${taskId}/toggle`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Remove the task row from completed page
-                    this.closest('.px-6').remove();
-                    
-                    // Show notification
-                    showNotification('Task reopened successfully!', 'success');
-                    
-                    // Refresh page after 1 second to update counts
-                    setTimeout(() => window.location.reload(), 1000);
-                } else {
-                    throw new Error(data.error || 'Failed to reopen task');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                this.innerHTML = originalHTML;
-                this.disabled = false;
-                alert('Error reopening task. Please try again.');
-            });
-        }
-    });
-});
-
-// Simple notification function
-function showNotification(message, type) {
-    const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
-        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-    }`;
-    notification.textContent = message;
-    
-    document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 3000);
-}
-</script>

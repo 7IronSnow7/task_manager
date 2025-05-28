@@ -20,12 +20,13 @@
         </a>
     </div>
 
-    <!-- Task Stats -->
+    <!-- Task Stats - FIXED -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        {% set total_tasks = tasks|length %}
-        {% set completed_tasks = tasks|selectattr('status.value', 'equalto', 'completed')|list|length %}
-        {% set pending_tasks = total_tasks - completed_tasks %}
-        {% set high_priority_tasks = tasks|selectattr('priority.value', 'equalto', 'high')|list|length %}
+        {% set total_tasks = all_tasks|length %}
+        {% set completed_tasks = all_tasks|selectattr('status.value', 'equalto', 'completed')|list|length %}
+        {% set pending_tasks = all_tasks|selectattr('status.value', 'equalto', 'pending')|list|length %}
+        {% set in_progress_tasks = all_tasks|selectattr('status.value', 'equalto', 'in_progress')|list|length %}
+        {% set high_priority_tasks = all_tasks|selectattr('priority.value', 'equalto', 'high')|rejectattr('status.value', 'equalto', 'completed')|list|length %}
 
         <div class="bg-white p-6 rounded-lg shadow">
             <div class="flex items-center">
@@ -63,8 +64,9 @@
                     </svg>
                 </div>
                 <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Pending</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ pending_tasks }}</p>
+                    <p class="text-sm font-medium text-gray-600">Active</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ pending_tasks + in_progress_tasks }}</p>
+                    <p class="text-xs text-gray-500">{{ pending_tasks }} pending, {{ in_progress_tasks }} in progress</p>
                 </div>
             </div>
         </div>
@@ -83,7 +85,6 @@
             </div>
         </div>
     </div>
-
     <!-- Tasks List -->
     {% if tasks %}
         <div class="bg-white shadow rounded-lg overflow-hidden">

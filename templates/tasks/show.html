@@ -13,13 +13,24 @@
             <h1 class="text-3xl font-bold text-gray-900">Task Details</h1>
         </div>
         
-        <!-- Action Buttons -->
+        <!-- Action Buttons - UPDATED -->
         <div class="flex space-x-3">
-            <a href="{{ url_for('tasks.edit', id=task.id) }}" 
-               class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200">
-                <i class="fas fa-edit mr-1"></i>
-                Edit Task
-            </a>
+            <!-- Only show Edit button for non-completed tasks -->
+            {% if task.status.value != 'completed' %}
+                <a href="{{ url_for('tasks.edit', id=task.id) }}" 
+                   class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200">
+                    <i class="fas fa-edit mr-1"></i>
+                    Edit Task
+                </a>
+            {% else %}
+                <!-- Optional: Show completed badge instead -->
+                <span class="bg-green-100 text-green-800 px-4 py-2 rounded-lg">
+                    <i class="fas fa-check-circle mr-1"></i>
+                    Task Completed
+                </span>
+            {% endif %}
+            
+            <!-- Keep Delete button for all tasks -->
             <form method="POST" action="{{ url_for('tasks.delete', id=task.id) }}" class="inline"
                   onsubmit="return confirm('Are you sure you want to delete this task?')">
                 <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition duration-200">
@@ -32,13 +43,16 @@
 
     <!-- Task Card -->
     <div class="bg-white rounded-lg shadow-lg overflow-hidden border-l-4 
-                {% if task.status == 'COMPLETED' or task.status == 'completed' or (hasattr(task.status, 'name') and task.status.name == 'COMPLETED') %}border-green-500{% elif task.priority == 'HIGH' or task.priority == 'high' or (hasattr(task.priority, 'name') and task.priority.name == 'HIGH') %}border-red-500{% elif task.priority == 'MEDIUM' or task.priority == 'medium' or (hasattr(task.priority, 'name') and task.priority.name == 'MEDIUM') %}border-yellow-500{% else %}border-gray-300{% endif %}">
+                {% if task.status.value == 'completed' %}border-green-500
+                {% elif task.priority.value == 'high' %}border-red-500
+                {% elif task.priority.value == 'medium' %}border-yellow-500
+                {% else %}border-gray-300{% endif %}">
         
         <!-- Card Header -->
         <div class="bg-gray-50 px-8 py-6 border-b">
             <div class="flex items-start justify-between">
                 <div class="flex-1">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-2 {% if task.status == 'completed' %}line-through text-gray-500{% endif %}">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2 {% if task.status.value == 'completed' %}line-through text-gray-500{% endif %}">
                         {{ task.title }}
                     </h2>
                     
@@ -46,26 +60,26 @@
                     <div class="flex flex-wrap gap-3">
                         <!-- Status Badge -->
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                                   {% if task.status == 'completed' %}bg-green-100 text-green-800
-                                   {% elif task.status == 'in_progress' %}bg-blue-100 text-blue-800
+                                   {% if task.status.value == 'completed' %}bg-green-100 text-green-800
+                                   {% elif task.status.value == 'in_progress' %}bg-blue-100 text-blue-800
                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
-                            {% if task.status == 'completed' %}
+                            {% if task.status.value == 'completed' %}
                                 <i class="fas fa-check-circle mr-1"></i>
-                            {% elif task.status == 'in_progress' %}
+                            {% elif task.status.value == 'in_progress' %}
                                 <i class="fas fa-clock mr-1"></i>
                             {% else %}
                                 <i class="fas fa-circle mr-1"></i>
                             {% endif %}
-                            {{ task.status.replace('_', ' ').title() }}
+                            {{ task.status.value.replace('_', ' ').title() }}
                         </span>
 
                         <!-- Priority Badge -->
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                                   {% if task.priority == 'high' %}bg-red-100 text-red-800
-                                   {% elif task.priority == 'medium' %}bg-yellow-100 text-yellow-800
+                                   {% if task.priority.value == 'high' %}bg-red-100 text-red-800
+                                   {% elif task.priority.value == 'medium' %}bg-yellow-100 text-yellow-800
                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
-                            {% if task.priority == 'high' %}<i class="fas fa-exclamation-triangle mr-1"></i>{% endif %}
-                            {{ task.priority.title() }} Priority
+                            {% if task.priority.value == 'high' %}<i class="fas fa-exclamation-triangle mr-1"></i>{% endif %}
+                            {{ task.priority.value.title() }} Priority
                         </span>
                     </div>
                 </div>
@@ -108,13 +122,11 @@
                             <div>
                                 <p class="text-sm font-medium text-orange-900">Due Date</p>
                                 <p class="text-orange-700">{{ task.due_date.strftime('%B %d, %Y') }}</p>
-                                {% set days_until = (task.due_date - task.created_at.date()).days %}
-                                {% if days_until < 0 %}
-                                    <p class="text-xs text-red-600 font-medium">Overdue by {{ (-days_until) }} day{{ 's' if (-days_until) != 1 else '' }}</p>
-                                {% elif days_until == 0 %}
+                                <!-- Simplified: just show if overdue by comparing dates -->
+                                {% if task.due_date.date() < task.created_at.date() %}
+                                    <p class="text-xs text-red-600 font-medium">Overdue</p>
+                                {% elif task.due_date.date() == task.created_at.date() %}
                                     <p class="text-xs text-orange-600 font-medium">Due Today</p>
-                                {% elif days_until <= 3 %}
-                                    <p class="text-xs text-yellow-600 font-medium">Due in {{ days_until }} day{{ 's' if days_until != 1 else '' }}</p>
                                 {% endif %}
                             </div>
                         </div>
@@ -156,26 +168,32 @@
                         <div class="flex justify-between text-sm text-gray-600 mb-1">
                             <span>Completion Status</span>
                             <span>
-                                {% if task.status == 'completed' %}100%
-                                {% elif task.status == 'in_progress' %}50%
+                                {% if task.status.value == 'completed' %}100%
+                                {% elif task.status.value == 'in_progress' %}50%
                                 {% else %}0%{% endif %}
                             </span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
                             <div class="h-2 rounded-full 
-                                        {% if task.status == 'completed' %}bg-green-500 w-full
-                                        {% elif task.status == 'in_progress' %}bg-blue-500 w-1/2
+                                        {% if task.status.value == 'completed' %}bg-green-500 w-full
+                                        {% elif task.status.value == 'in_progress' %}bg-blue-500 w-1/2
                                         {% else %}bg-gray-300 w-0{% endif %}">
                             </div>
                         </div>
                     </div>
 
                     <!-- Quick Status Update -->
-                    {% if task.status != 'completed' %}
+                    {% if task.status.value != 'completed' %}
                         <div class="flex space-x-2">
-                            {% if task.status == 'pending' %}
-                                <form method="POST" action="{{ url_for('tasks.update_status', id=task.id) }}" class="inline">
+                            {% if task.status.value == 'pending' %}
+                                <form method="POST" action="{{ url_for('tasks.update', id=task.id) }}" class="inline">
+                                    <input type="hidden" name="title" value="{{ task.title }}">
+                                    <input type="hidden" name="description" value="{{ task.description or '' }}">
+                                    <input type="hidden" name="priority" value="{{ task.priority.value }}">
                                     <input type="hidden" name="status" value="in_progress">
+                                    {% if task.due_date %}
+                                        <input type="hidden" name="due_date" value="{{ task.due_date.strftime('%Y-%m-%d') }}">
+                                    {% endif %}
                                     <button type="submit" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded text-sm transition duration-200">
                                         <i class="fas fa-play mr-1"></i>
                                         Start Task
@@ -183,8 +201,14 @@
                                 </form>
                             {% endif %}
                             
-                            <form method="POST" action="{{ url_for('tasks.update_status', id=task.id) }}" class="inline">
+                            <form method="POST" action="{{ url_for('tasks.update', id=task.id) }}" class="inline">
+                                <input type="hidden" name="title" value="{{ task.title }}">
+                                <input type="hidden" name="description" value="{{ task.description or '' }}">
+                                <input type="hidden" name="priority" value="{{ task.priority.value }}">
                                 <input type="hidden" name="status" value="completed">
+                                {% if task.due_date %}
+                                    <input type="hidden" name="due_date" value="{{ task.due_date.strftime('%Y-%m-%d') }}">
+                                {% endif %}
                                 <button type="submit" class="bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1 rounded text-sm transition duration-200">
                                     <i class="fas fa-check mr-1"></i>
                                     Mark Complete
