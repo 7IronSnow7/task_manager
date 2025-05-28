@@ -41,6 +41,9 @@ def create_app():
     
     # Add hasattr and temoplate filters    
     app.jinja_env.globals['hasattr'] = hasattr
+    app.jinja_env.globals['TaskStatus'] = TaskStatus
+    app.jinja_env.globals['TaskPriority'] = TaskPriority
+    
     
     # Template filters for enums
     @app.template_filter('enum_name')

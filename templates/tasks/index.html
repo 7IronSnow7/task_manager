@@ -11,7 +11,6 @@
             <p class="text-gray-600 mt-1">Manage and track your tasks</p>
         </div>
         
-        <!-- FIXED: Using correct endpoint 'tasks.new' -->
         <a href="{{ url_for('tasks.new') }}" 
            class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,29 +93,30 @@
             
             <div class="divide-y divide-gray-200">
                 {% for task in tasks %}
-                <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
+                <div class="px-6 py-4 hover:bg-gray-50 transition-colors" id="task-row-{{ task.id }}">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3 flex-1">
-                            <!-- Task Completion Toggle -->
-                            <form action="{{ url_for('tasks.toggle_complete', id=task.id) }}" method="POST" class="task-toggle-form">
-                                <button type="submit" class="flex-shrink-0">
-                                    {% if task.status.value == 'completed' %}
-                                        <div class="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                                            <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                            </svg>
-                                        </div>
-                                    {% else %}
-                                        <div class="w-5 h-5 border-2 border-gray-300 rounded-full hover:border-blue-500 transition-colors"></div>
-                                    {% endif %}
-                                </button>
-                            </form>
+                            <!-- FIXED: AJAX Task Completion Toggle -->
+                            <button type="button" 
+                                    class="task-toggle flex-shrink-0" 
+                                    data-task-id="{{ task.id }}"
+                                    data-completed="{{ 'true' if task.status.value == 'completed' else 'false' }}">
+                                {% if task.status.value == 'completed' %}
+                                    <div class="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                                        <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                {% else %}
+                                    <div class="w-5 h-5 border-2 border-gray-300 rounded-full hover:border-blue-500 transition-colors"></div>
+                                {% endif %}
+                            </button>
 
                             <!-- Task Content -->
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center space-x-2">
                                     <a href="{{ url_for('tasks.show', id=task.id) }}" 
-                                       class="text-lg font-medium text-gray-900 hover:text-blue-600 transition-colors {% if task.status.value == 'completed' %}line-through text-gray-500{% endif %}">
+                                       class="task-title text-lg font-medium text-gray-900 hover:text-blue-600 transition-colors {% if task.status.value == 'completed' %}line-through text-gray-500{% endif %}">
                                         {{ task.title }}
                                     </a>
                                     
@@ -144,7 +144,7 @@
                                 </div>
                                 
                                 {% if task.description %}
-                                    <p class="text-sm text-gray-500 mt-1 {% if task.status.value == 'completed' %}line-through{% endif %}">
+                                    <p class="task-description text-sm text-gray-500 mt-1 {% if task.status.value == 'completed' %}line-through{% endif %}">
                                         {{ task.description[:100] }}{% if task.description|length > 100 %}...{% endif %}
                                     </p>
                                 {% endif %}
@@ -187,53 +187,120 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
             </svg>
             <h3 class="text-lg font-medium text-gray-900 mb-2">No tasks yet</h3>
-            <p class="text-gray-500 mb-6">Get started by creating your first task.</p>
             <a href="{{ url_for('tasks.new') }}" 
                class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
-                Create Your First Task
+                Create A New Task
             </a>
         </div>
     {% endif %}
 </div>
 
+<!-- FIXED: Proper AJAX Task Toggle Script -->
 <script>
-// Enhanced task toggle with better UX
-document.querySelectorAll('.task-toggle-form').forEach(form => {
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const button = this.querySelector('button');
-        const originalContent = button.innerHTML;
-        
-        // Show loading state
-        button.innerHTML = '<div class="w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>';
-        button.disabled = true;
-        
-        fetch(this.action, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.location.reload();
-            } else {
-                throw new Error(data.error || 'Unknown error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            button.innerHTML = originalContent;
-            button.disabled = false;
-            alert('Error updating task. Please try again.');
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔧 Task toggle JavaScript loaded');
+    
+    // Handle task completion toggle
+    document.querySelectorAll('.task-toggle').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const taskId = this.dataset.taskId;
+            const isCompleted = this.dataset.completed === 'true';
+            const taskRow = document.getElementById('task-row-' + taskId);
+            
+            console.log(`🔧 Toggle clicked - Task ID: ${taskId}, Currently completed: ${isCompleted}`);
+            
+            // Show loading state
+            const originalContent = this.innerHTML;
+            this.innerHTML = '<div class="w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>';
+            this.disabled = true;
+            
+            // Send AJAX request
+            fetch(`/tasks/${taskId}/toggle`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                console.log('🔧 Response received:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return response.json();
+            })
+            .then(data => {
+                console.log('🔧 Response data:', data);
+                
+                if (data.success) {
+                    // Update button appearance
+                    if (data.completed) {
+                        this.innerHTML = `
+                            <div class="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                        `;
+                        this.dataset.completed = 'true';
+                        
+                        // Add strikethrough to task content
+                        taskRow.querySelector('.task-title').classList.add('line-through', 'text-gray-500');
+                        const description = taskRow.querySelector('.task-description');
+                        if (description) description.classList.add('line-through');
+                        
+                    } else {
+                        this.innerHTML = '<div class="w-5 h-5 border-2 border-gray-300 rounded-full hover:border-blue-500 transition-colors"></div>';
+                        this.dataset.completed = 'false';
+                        
+                        // Remove strikethrough from task content
+                        taskRow.querySelector('.task-title').classList.remove('line-through', 'text-gray-500');
+                        const description = taskRow.querySelector('.task-description');
+                        if (description) description.classList.remove('line-through');
+                    }
+                    
+                    // Show success notification
+                    showNotification(data.message || 'Task updated successfully!', 'success');
+                } else {
+                    throw new Error(data.error || 'Unknown error');
+                }
+            })
+            .catch(error => {
+                console.error('🔧 Error:', error);
+                
+                // Restore original button state
+                this.innerHTML = originalContent;
+                showNotification('Error updating task. Please try again.', 'error');
+            })
+            .finally(() => {
+                // Re-enable button
+                this.disabled = false;
+            });
         });
     });
+    
+    // Notification function
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all duration-300 ${
+            type === 'success' 
+                ? 'bg-green-500 text-white' 
+                : 'bg-red-500 text-white'
+        }`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
 });
 </script>
 {% endblock %}

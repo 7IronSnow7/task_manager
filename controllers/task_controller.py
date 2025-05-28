@@ -4,14 +4,20 @@ from flask_login import login_required, current_user
 from models import db
 from models.user import User
 from models.task import Task, TaskStatus, TaskPriority
+import pytz
 
+SAST = pytz.timezone('Africa/Johannesburg')
 # Blueprint for task routes
 task_bp = Blueprint('tasks', __name__)
 
 @task_bp.route('/')
+@login_required
 def index():
-    """Display all tasks"""
-    tasks = Task.query.filter_by(user_id=current_user.id).order_by(Task.created_at.desc()).all()
+    """Display active tasks (exclude completed tasks)"""
+    # Only show pending or in progress tasks here
+    tasks = Task.query.filter_by(user_id=current_user.id).filter(
+        Task.status != TaskStatus.COMPLETED
+        ).order_by(Task.created_at.desc()).all()
     return render_template('tasks/index.html', tasks=tasks)
 
 @task_bp.route('/new')
@@ -77,7 +83,7 @@ def edit(id):
     task = Task.query.filter_by(id=id, user_id=current_user.id).first_or_404()
     return render_template('tasks/edit.html', task=task)
 
-@task_bp.route('/<int:id>/udpate', methods=['POST'])
+@task_bp.route('/<int:id>/update', methods=['POST'])
 @login_required
 def update(id):
     """Handle task update form submission"""
@@ -110,7 +116,7 @@ def update(id):
     task.priority = TaskPriority(priority)
     task.status = TaskStatus(status)
     task.due_date = due_date
-    task_updated_at = datetime.now(timezone.utc)
+    task.updated_at = datetime.now(SAST)
     
     try:
         db.session.commit()
@@ -171,16 +177,14 @@ def toggle_complete(id):
     try:
         # Toggle between completed and pending
         if task.status == TaskStatus.COMPLETED:
-            task.status == TaskStatus.PENDING
-            task.comleted_at = None
+            task.mark_pending()
             message = 'Task reopened successfully!'
         else:
             task.mark_completed()
             message = 'Task completed successfully!'
             
-        task.updated_at = datetime.now(timezone.utc)
         db.session.commit()
-        flash(message, 'error')
+        flash(message, 'success')
         
         # If this is an AJAX request, return JSON response
         if request.headers.get('Content-Type') == 'application/json':
@@ -197,6 +201,29 @@ def toggle_complete(id):
             return jsonify({'success': False, 'error': str(e)}), 500
         
     return redirect(url_for('tasks.index'))
+
+# Completed tasks sent to a different template
+@task_bp.route('/completed')
+@login_required
+def completed():
+    """Display completed tasks categorized by priority"""
+    
+    # Get all completed tasks for current user
+    completed_tasks = Task.query.filter_by(
+        user_id=current_user.id,
+        status=TaskStatus.COMPLETED
+    ).order_by(Task.completed_at.desc()).all()
+    
+    # Categorize by priority
+    high_priority_tasks = [task for task in completed_tasks if task.priority == TaskPriority.HIGH]
+    medium_priority_tasks = [task for task in completed_tasks if task.priority == TaskPriority.MEDIUM]
+    low_priority_tasks = [task for task in completed_tasks if task.priority == TaskPriority.LOW] 
+    
+    return render_template('tasks/completed.html',
+                           high_priority_tasks=high_priority_tasks,
+                           medium_priority_tasks=medium_priority_tasks,
+                           low_priority_tasks=low_priority_tasks,
+                           total_completed=len(completed_tasks))
 
 # API endpoints for AJAX requests
 @task_bp.route('/api/tasks', methods=['GET'])

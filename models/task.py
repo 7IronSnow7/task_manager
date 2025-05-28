@@ -34,6 +34,7 @@ class Task(db.Model):
     due_date = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(SAST), nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.now(SAST), onupdate=datetime.now(SAST))
+    completed_at = db.Column(db.DateTime, nullable=True)
     
     # Foreign key to user
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -52,14 +53,40 @@ class Task(db.Model):
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
+    @property
+    def is_completed(self):
+        """Check if task is completed"""
+        return self.status == TaskStatus.COMPLETED
+    
+    @property
+    def is_overdue(self):
+        """Check if task is overdue"""
+        if not self.due_date:
+            return False
+        return datetime.now(SAST) > self.due_date and self.is_completed
 
     def mark_completed(self):
+        """Mark as completed"""
         self.status = TaskStatus.COMPLETED
+        self.completed_at = datetime.now(SAST)
+        self.updated_at = datetime.now(SAST)
+        
+    def mark_pending(self):
+        """Mark task as pending (reopen)"""
+        self.status = TaskStatus.PENDING
+        self.completed_at = None
         self.updated_at = datetime.now(SAST)
         
     def mark_in_progress(self):
         self.status = TaskStatus.IN_PROGRESS
         self.updated_at = datetime.now(SAST)
+        
+    def toggle_completion(self):
+        """Toggle tasl completion status"""
+        if self.is_completed:
+            self.mark_pending()
+        else:
+            self.mark_completed()
         
     @classmethod
     def get_by_status(cls, status):

@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}Completed Tasks{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <!-- Header Section -->
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Completed Tasks</h1>
+            <p class="text-gray-600 mt-1">Your accomplished tasks organized by priority</p>
+        </div>
+        
+        <div class="flex space-x-3">
+            <a href="{{ url_for('tasks.index') }}" 
+               class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors">
+               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+               </svg>
+               Back to Tasks
+            </a>
+            <a href="{{ url_for('tasks.new') }}" 
+               class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                New Task
+            </a>
+        </div>
+    </div>
+
+    <!-- Completion Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="flex items-center">
+                <div class="p-2 bg-green-100 rounded-md">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Total Completed</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_completed }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="flex items-center">
+                <div class="p-2 bg-red-100 rounded-md">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">High Priority</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ high_priority_tasks|length }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="flex items-center">
+                <div class="p-2 bg-yellow-100 rounded-md">
+                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Medium Priority</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ medium_priority_tasks|length }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="flex items-center">
+                <div class="p-2 bg-blue-100 rounded-md">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Low Priority</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ low_priority_tasks|length }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if total_completed > 0 %}
+        <!-- High Priority Tasks -->
+        {% if high_priority_tasks %}
+        <div class="mb-8">
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 bg-red-50">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-red-500 rounded-full mr-3"></div>
+                        <h2 class="text-lg font-medium text-gray-900">High Priority Tasks ({{ high_priority_tasks|length }})</h2>
+                    </div>
+                </div>
+                
+                <div class="divide-y divide-gray-200">
+                    {% for task in high_priority_tasks %}
+                        {% include 'tasks/completed_task_row.html' %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Medium Priority Tasks -->
+        {% if medium_priority_tasks %}
+        <div class="mb-8">
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 bg-yellow-50">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
+                        <h2 class="text-lg font-medium text-gray-900">Medium Priority Tasks ({{ medium_priority_tasks|length }})</h2>
+                    </div>
+                </div>
+                
+                <div class="divide-y divide-gray-200">
+                    {% for task in medium_priority_tasks %}
+                        {% include 'tasks/completed_task_row.html' %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Low Priority Tasks -->
+        {% if low_priority_tasks %}
+        <div class="mb-8">
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 bg-blue-50">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
+                        <h2 class="text-lg font-medium text-gray-900">Low Priority Tasks ({{ low_priority_tasks|length }})</h2>
+                    </div>
+                </div>
+                
+                <div class="divide-y divide-gray-200">
+                    {% for task in low_priority_tasks %}
+                        {% include 'tasks/completed_task_row.html' %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+    {% else %}
+        <!-- Empty State -->
+        <div class="bg-white shadow rounded-lg p-12 text-center">
+            <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No completed tasks yet</h3>
+            <p class="text-gray-500 mb-6">Complete some tasks to see them organized here by priority.</p>
+            <a href="{{ url_for('tasks.index') }}" 
+               class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Tasks
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Optional: Add some JavaScript for animations -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add fade-in animation to task sections
+    const sections = document.querySelectorAll('.bg-white.shadow');
+    sections.forEach((section, index) => {
+        section.style.opacity = '0';
+        section.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            section.style.transition = 'all 0.5s ease';
+            section.style.opacity = '1';
+            section.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}
