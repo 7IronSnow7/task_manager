@@ -1,4 +1,3 @@
-# controllers/admin_controller.py
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
 from models.user import User
@@ -71,9 +70,23 @@ def dashboard():
 @login_required
 @admin_required
 def users():
-    """View all users"""
-    all_users = User.query.order_by(User.created_at.desc()).all()
-    return render_template('admin/users.html', users=all_users)
+    """Display all users for user management"""
+    users = User.query.order_by(User.created_at.desc()).all()
+    
+    user_data = []
+    for user in users:
+        # Get task statistcis for each user
+        total_tasks = Task.query.filter_by(user_id=user.id).count()
+        completed_tasks = Task.query.filter_by(user_id=user.id, status=TaskStatus.COMPLETED).count()
+        pending_tasks = total_tasks - completed_tasks
+        
+        user_data.append({
+            'user':user,
+            'total_tasks': total_tasks,
+            'completed_tasks': completed_tasks,
+            'pending_tasks': pending_tasks
+        })
+    return render_template('admin/manage_users.html', user_data=user_data)
 
 @admin_bp.route('/tasks')
 @login_required
