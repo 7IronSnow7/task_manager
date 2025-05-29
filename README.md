@@ -9,28 +9,14 @@ A demo-featured task management web application built with Flask, SQLite, and Ta
 - pip (Python package manager)
 
 ### **Installation**
+1. **Fork and download this repository.**
+Next, find the Fork button in the top right of this page. This will allow you to make your own copy. After this, download to your development machine using the green Code button at the top of the repo page.
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/7IronSnow7/task_manager.git
-   ```
-   ```bash
-   cd project
-   ```
-
-2. **Create a virtual environment:**
+3. **Create a virtual environment:**
     ```bash
    python -m venv venv
 
-3. **Activate the virtual environment:**
------------------------------------------------------
-**Please Note**
-If you are having trouble with activating your virtual environment.
-Run the command below and then activate your virtual environment again.
-```bash
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-```
-----------------------------------------------------------
+4. **Activate the virtual environment:**
 
 Windows:
 ```bash
@@ -41,6 +27,14 @@ macOS/Linux:
 ```bash
 bashsource venv/bin/activate
 ```
+-----------------------------------------------------
+**Please Note**
+If you are having trouble with activating your virtual environment.
+Run the command below and then activate your virtual environment again.
+```bash
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+----------------------------------------------------------
 
 4. **Install dependencies:**
 ```bash
