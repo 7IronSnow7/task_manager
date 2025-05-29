@@ -1,6 +1,6 @@
 # Task Manager
 
-A full-featured task management web application built with Flask, SQLite, and Tailwind CSS. Users can create, edit, delete, and track tasks with priority levels, due dates, and completion status.
+A demo-featured task management web application built with Flask, SQLite, and Tailwind CSS. Users can create, edit, delete, and track tasks with priority levels, due dates, and completion status.
 
 ## **Setup Instructions**
 
@@ -23,6 +23,14 @@ A full-featured task management web application built with Flask, SQLite, and Ta
    python -m venv venv
 
 3. **Activate the virtual environment:**
+-----------------------------------------------------
+**Please Note**
+If you are having trouble with activating your virtual environment.
+Run the command below and then activate your virtual environment again.
+```bash
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+----------------------------------------------------------
 
 Windows:
 ```bash
@@ -52,17 +60,17 @@ ______________________________________________________________________________
 
 **Default Login Credentials**
 **Admin Account:**
-Username: admin
-Password: taskmanager1
+<br>Username: admin
+<br>Password: admin123
 
 **Demo Account:**
-Username: demo
-Password: taskmanager2
+<br>Username: demo
+<br>Password: demo123
 ______________________________________________________________________________
-**You can find the passwords in the .env file.**
+**You can find the passwords in the models/user.py or .env file.**
 ______________________________________________________________________________
 
-**App Structure & Functionality**
+## App Structure & Functionality**
 **Core Features**
 
 - User Authentication - Register, login, logout with secure sessions
@@ -78,7 +86,6 @@ ______________________________________________________________________________
 project/
 ├── controllers/          # Flask blueprints/route handlers
 ├── models/               # Database models (SQLAlchemy)
-├── services/             # Business logic layer
 ├── templates/            # Jinja2 templates
 │   ├── admin/            # Admin-related templates
 │   ├── auth/             # Authentication templates
@@ -88,7 +95,7 @@ project/
 └── requirements.txt      # Python dependencies
 ```
 
-**Libraries & Technologies Used**
+## Libraries & Technologies Used**
 **Backend**
 
 - Flask - Python web framework
