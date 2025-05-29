@@ -10,7 +10,12 @@ A demo-featured task management web application built with Flask, SQLite, and Ta
 
 ### **Installation**
 1. **Fork and download this repository.**
-Next, find the Fork button in the top right of this page. This will allow you to make your own copy. After this, download to your development machine using the green Code button at the top of the repo page.
+Next, locate the "Fork" button in the top-right corner of this page. Clicking it will create your own copy of the repository. Then, download the files to your development machine by clicking the green "Code" button at the top of the repository page.
+
+<br>**After downloading, unzip the file and extract all contents.**
+
+<br>*I used VSCode as my IDE, but you can use any IDE of your choice.*  
+
 
 3. **Create a virtual environment:**
     ```bash
@@ -36,12 +41,12 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ```
 ----------------------------------------------------------
 
-4. **Install dependencies:**
+5. **Install dependencies:**
 ```bash
 pip install -r requirements.txt
 ```
 
-5. Run the application and initialize the database:
+6. Run the application and initialize the database:
 ```bash
 python app.py
 ```
@@ -64,7 +69,7 @@ ______________________________________________________________________________
 **You can find the passwords in the models/user.py or .env file.**
 ______________________________________________________________________________
 
-## App Structure & Functionality**
+## App Structure & Functionality
 **Core Features**
 
 - User Authentication - Register, login, logout with secure sessions
