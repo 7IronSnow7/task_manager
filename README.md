@@ -9,28 +9,19 @@ A demo-featured task management web application built with Flask, SQLite, and Ta
 - pip (Python package manager)
 
 ### **Installation**
+1. **Fork and download this repository.**
+Next, locate the "Fork" button in the top-right corner of this page. Clicking it will create your own copy of the repository. Then, download the files to your development machine by clicking the green "Code" button at the top of the repository page.
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/7IronSnow7/task_manager.git
-   ```
-   ```bash
-   cd project
-   ```
+<br>**After downloading, unzip the file and extract all contents.**
 
-2. **Create a virtual environment:**
+<br>*I used VSCode as my IDE, but you can use any IDE of your choice.*  
+
+
+3. **Create a virtual environment:**
     ```bash
    python -m venv venv
 
-3. **Activate the virtual environment:**
------------------------------------------------------
-**Please Note**
-If you are having trouble with activating your virtual environment.
-Run the command below and then activate your virtual environment again.
-```bash
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-```
-----------------------------------------------------------
+4. **Activate the virtual environment:**
 
 Windows:
 ```bash
@@ -41,13 +32,21 @@ macOS/Linux:
 ```bash
 bashsource venv/bin/activate
 ```
+-----------------------------------------------------
+**Please Note**
+If you are having trouble with activating your virtual environment.
+Run the command below and then activate your virtual environment again.
+```bash
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+----------------------------------------------------------
 
-4. **Install dependencies:**
+5. **Install dependencies:**
 ```bash
 pip install -r requirements.txt
 ```
 
-5. Run the application and initialize the database:
+6. Run the application and initialize the database:
 ```bash
 python app.py
 ```
@@ -70,7 +69,7 @@ ______________________________________________________________________________
 **You can find the passwords in the models/user.py or .env file.**
 ______________________________________________________________________________
 
-## App Structure & Functionality**
+## App Structure & Functionality
 **Core Features**
 
 - User Authentication - Register, login, logout with secure sessions
