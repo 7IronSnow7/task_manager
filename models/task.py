@@ -82,7 +82,7 @@ class Task(db.Model):
         self.updated_at = datetime.now(SAST)
         
     def toggle_completion(self):
-        """Toggle tasl completion status"""
+        """Toggle task completion status"""
         if self.is_completed:
             self.mark_pending()
         else:
