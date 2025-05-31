@@ -104,5 +104,5 @@ def register():
 @auth_bp.route('/profile')
 @login_required
 def profile():
-    """Usaer profile page"""
+    """User profile page"""
     return render_template('auth/profile.html', user=current_user)
