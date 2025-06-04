@@ -296,7 +296,7 @@ def api_stats():
         }
     })
     
-# Error handlers for this blueprint
+# Error handlers for this blueprint are here
 @task_bp.errorhandler(404)
 def task_not_found(error):
     """Handle 404 errors for tasks"""
