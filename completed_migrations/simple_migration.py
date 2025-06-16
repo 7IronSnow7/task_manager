@@ -1,4 +1,3 @@
-# simple_migration.py - Works with any SQLAlchemy version
 from app import create_app
 from models import db
 from models.task import Task
